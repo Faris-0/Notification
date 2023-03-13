@@ -40,16 +40,16 @@ public class MainActivity extends Activity {
 
     private EditText etID, etName, etMessage;
     private TextView tvDatetime;
-    public static RecyclerView rvData;
+    private RecyclerView rvData;
 
-    public static SharedPreferences spNotify;
+    private SharedPreferences spNotify;
     private String CHANNEL_ID = "CHANNEL_ID";
     private Boolean doubleBackToExit = false;
 
     // Key for the string that's delivered in the action's intent.
     private static final String KEY_TEXT_REPLY = "key_text_reply";
 
-    public static ArrayList<MessageData> messageDataArrayList;
+    private ArrayList<MessageData> messageDataArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
 
         spNotify = getSharedPreferences("NOTIFY", Context.MODE_PRIVATE);
 
-        loadData(this);
+        loadData();
 
         findViewById(R.id.mSave).setOnClickListener(v -> {
             Integer id;
@@ -83,13 +83,13 @@ public class MainActivity extends Activity {
                     tvDatetime.getText().toString(),
                     0));
             spNotify.edit().putString("DATA", new Gson().toJson(messageDataArrayList)).apply();
-            loadData(this);
+            loadData();
         });
 
         findViewById(R.id.mClear).setOnClickListener(v -> {
             messageDataArrayList = new ArrayList<>();
             spNotify.edit().clear().apply();
-            loadData(this);
+            loadData();
         });
 
         findViewById(R.id.mShow).setOnClickListener(v -> {
@@ -104,7 +104,7 @@ public class MainActivity extends Activity {
             for (int i = 0; i < integerArrayList.size(); i++) {
                 loadMessage(integerArrayList.get(i));
             }
-            loadData(this);
+            loadData();
         });
     }
 
@@ -130,7 +130,7 @@ public class MainActivity extends Activity {
                 false);
     }
 
-    public static void loadData(Context context) {
+    private void loadData() {
         // in below line we are getting data from gson
         // and saving it to our array list
         messageDataArrayList = new Gson().fromJson(spNotify.getString("DATA", ""), new TypeToken<ArrayList<MessageData>>() {}.getType());
@@ -138,8 +138,8 @@ public class MainActivity extends Activity {
         // checking below if the array list is empty or not
         if (messageDataArrayList == null) messageDataArrayList = new ArrayList<>();
 
-        rvData.setLayoutManager(new LinearLayoutManager(context));
-        rvData.setAdapter(new MessageAdater(messageDataArrayList, context));
+        rvData.setLayoutManager(new LinearLayoutManager(this));
+        rvData.setAdapter(new MessageAdater(messageDataArrayList, this));
     }
 
     public static void notification(Context context, ArrayList<MessageData> body, Integer sender_id, Boolean isRemove) {
@@ -149,7 +149,6 @@ public class MainActivity extends Activity {
             if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return;
             NotificationManagerCompat.from(context).cancel(sender_id);
             //--//
-            loadData(context);
         } else {
             // Create an explicit intent for an Activity in your app
             Intent intent = new Intent(context, MainActivity.class)

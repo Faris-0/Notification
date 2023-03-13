@@ -59,26 +59,27 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
                             1));
                 }
                 spData.edit().putString("DATA"+id, new Gson().toJson(cacheMessageDataArrayList)).apply();
+                notification(context, cacheMessageDataArrayList, id, true);
                 //
-                ArrayList<MessageData> newMessageDataArrayList = new Gson().fromJson(spData.getString("DATA", ""), new TypeToken<ArrayList<MessageData>>() {}.getType());
-                ArrayList<Integer> integerArrayList = new ArrayList<>();
-                for (int i = 0; i < newMessageDataArrayList.size(); i++) {
-                    if (newMessageDataArrayList.get(i).getId() == id) {
-                        integerArrayList.add(i);
-                        newMessageDataArrayList.add(new MessageData(
-                                newMessageDataArrayList.get(i).getId(),
-                                newMessageDataArrayList.get(i).getName(),
-                                newMessageDataArrayList.get(i).getMessage(),
-                                newMessageDataArrayList.get(i).getDatetime(),
-                                1));
-                    }
-                }
-                for (int i = 0; i < integerArrayList.size(); i++) {
-                    newMessageDataArrayList.remove(integerArrayList.get(i));
-                }
-                spData.edit().remove("DATA").apply();
-                spData.edit().putString("DATA", new Gson().toJson(newMessageDataArrayList)).apply();
-                notification(context, newMessageDataArrayList, id, true);
+//                ArrayList<MessageData> newMessageDataArrayList = new Gson().fromJson(spData.getString("DATA", ""), new TypeToken<ArrayList<MessageData>>() {}.getType());
+//                ArrayList<Integer> integerArrayList = new ArrayList<>();
+//                for (int i = 0; i < newMessageDataArrayList.size(); i++) {
+//                    if (newMessageDataArrayList.get(i).getId() == id) {
+//                        integerArrayList.add(i);
+//                        newMessageDataArrayList.add(new MessageData(
+//                                newMessageDataArrayList.get(i).getId(),
+//                                newMessageDataArrayList.get(i).getName(),
+//                                newMessageDataArrayList.get(i).getMessage(),
+//                                newMessageDataArrayList.get(i).getDatetime(),
+//                                1));
+//                    }
+//                }
+//                for (int i = 0; i < integerArrayList.size(); i++) {
+//                    newMessageDataArrayList.remove(integerArrayList.get(i));
+//                }
+//                spData.edit().remove("DATA").apply();
+//                spData.edit().putString("DATA", new Gson().toJson(newMessageDataArrayList)).apply();
+//                notification(context, newMessageDataArrayList, id, true);
             }
             //
             StringBuilder sb = new StringBuilder();
