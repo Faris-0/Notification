@@ -28,7 +28,7 @@ public class MessageAdater extends RecyclerView.Adapter<MessageAdater.Holder> {
     @Override
     public void onBindViewHolder(Holder holder, int position) {
         MessageData messageData = messageDataList.get(position);
-        holder.tvIDREAD.setText(messageData.getId() + " - " + messageData.getRead());
+        holder.tvIDREAD.setText(messageData.getSender_id() + " - " + messageData.getRead());
         holder.tvName.setText(messageData.getName());
         holder.tvMessage.setText(messageData.getMessage());
         holder.tvDatetime.setText(messageData.getDatetime());

@@ -2,11 +2,12 @@ package com.yuuna.notification;
 
 public class MessageData {
 
-    private Integer id, read;
+    private Integer id, sender_id, read;
     private String name, message, datetime;
 
-    public MessageData(Integer id, String name, String message, String datetime, Integer read) {
+    public MessageData(Integer id, Integer sender_id, String name, String message, String datetime, Integer read) {
         this.id = id;
+        this.sender_id = sender_id;
         this.name = name;
         this.message = message;
         this.datetime = datetime;
@@ -15,6 +16,10 @@ public class MessageData {
 
     public Integer getId() {
         return id;
+    }
+
+    public Integer getSender_id() {
+        return sender_id;
     }
 
     public String getName() {

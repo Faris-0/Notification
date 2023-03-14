@@ -32,7 +32,6 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         private final PendingResult pendingResult;
         private final Intent intent;
         private final Context context;
-        private ArrayList<MessageData> messageDataArrayList;
 
         private Task(PendingResult pendingResult, Intent intent, Context context) {
             this.pendingResult = pendingResult;
@@ -44,42 +43,27 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         protected String doInBackground(String... strings) {
             //
             if (intent.getAction().startsWith("READ_")) {
-                Integer id = intent.getIntExtra("ID", 0);
-                SharedPreferences spData = context.getSharedPreferences("NOTIFY", Context.MODE_PRIVATE);
-                spData.edit().remove("DATA"+id).apply();
+                Integer id = intent.getIntExtra("senderID", 0);
+//                SharedPreferences spData = context.getSharedPreferences("NOTIFY", Context.MODE_PRIVATE);
+//                spData.edit().remove("DATA"+id).apply();
                 Type type = new TypeToken<ArrayList<MessageData>>() {}.getType();
-                messageDataArrayList = new ArrayList<>(new Gson().fromJson(intent.getStringExtra("DATA"), type));
-                ArrayList<MessageData> cacheMessageDataArrayList = new ArrayList<>();
+                ArrayList<MessageData> messageDataArrayList = new ArrayList<>(new Gson().fromJson(intent.getStringExtra("DATA"), type));
+                DBHandler dbHandler = new DBHandler(context);
                 for (int i = 0; i < messageDataArrayList.size(); i++) {
-                    cacheMessageDataArrayList.add(new MessageData(
-                            messageDataArrayList.get(i).getId(),
-                            messageDataArrayList.get(i).getName(),
-                            messageDataArrayList.get(i).getMessage(),
-                            messageDataArrayList.get(i).getDatetime(),
-                            1));
+                    dbHandler.updateRead(messageDataArrayList.get(i).getId());
                 }
-                spData.edit().putString("DATA"+id, new Gson().toJson(cacheMessageDataArrayList)).apply();
-                notification(context, cacheMessageDataArrayList, id, true);
-                //
-//                ArrayList<MessageData> newMessageDataArrayList = new Gson().fromJson(spData.getString("DATA", ""), new TypeToken<ArrayList<MessageData>>() {}.getType());
-//                ArrayList<Integer> integerArrayList = new ArrayList<>();
-//                for (int i = 0; i < newMessageDataArrayList.size(); i++) {
-//                    if (newMessageDataArrayList.get(i).getId() == id) {
-//                        integerArrayList.add(i);
-//                        newMessageDataArrayList.add(new MessageData(
-//                                newMessageDataArrayList.get(i).getId(),
-//                                newMessageDataArrayList.get(i).getName(),
-//                                newMessageDataArrayList.get(i).getMessage(),
-//                                newMessageDataArrayList.get(i).getDatetime(),
-//                                1));
-//                    }
+                notification(context, messageDataArrayList, intent.getIntExtra("senderID", 0), true);
+//                ArrayList<MessageData> cacheMessageDataArrayList = new ArrayList<>();
+//                for (int i = 0; i < messageDataArrayList.size(); i++) {
+//                    cacheMessageDataArrayList.add(new MessageData(
+//                            messageDataArrayList.get(i).getId(),
+//                            messageDataArrayList.get(i).getName(),
+//                            messageDataArrayList.get(i).getMessage(),
+//                            messageDataArrayList.get(i).getDatetime(),
+//                            1));
 //                }
-//                for (int i = 0; i < integerArrayList.size(); i++) {
-//                    newMessageDataArrayList.remove(integerArrayList.get(i));
-//                }
-//                spData.edit().remove("DATA").apply();
-//                spData.edit().putString("DATA", new Gson().toJson(newMessageDataArrayList)).apply();
-//                notification(context, newMessageDataArrayList, id, true);
+//                spData.edit().putString("DATA"+id, new Gson().toJson(cacheMessageDataArrayList)).apply();
+//                notification(context, cacheMessageDataArrayList, id, true);
             }
             //
             StringBuilder sb = new StringBuilder();
