@@ -247,6 +247,7 @@
             android:id="@+id/mData"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:overScrollMode="never"
             tools:listitem="@layout/item_message"
             tools:itemCount="3" />
     </LinearLayout>

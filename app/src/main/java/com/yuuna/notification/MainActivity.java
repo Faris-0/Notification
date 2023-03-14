@@ -68,56 +68,23 @@ public class MainActivity extends Activity {
 
         context = this;
         dbHandler = new DBHandler(this);
+        spNotify = getSharedPreferences("NOTIFY", Context.MODE_PRIVATE);
 
         tvDatetime.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("id")).format(new Date()));
-
-        spNotify = getSharedPreferences("NOTIFY", Context.MODE_PRIVATE);
 
         loadData();
 
         findViewById(R.id.mSave).setOnClickListener(v -> {
-            Integer id;
-            if (etID.getText().toString().equals("")) id = 0; else id = Integer.valueOf(etID.getText().toString());
-            dbHandler.addNewMessage(id, etName.getText().toString(), etMessage.getText().toString(), tvDatetime.getText().toString(), 0);
+            Integer sender_id = 0;
+            if (!etID.getText().toString().equals("")) sender_id = Integer.valueOf(etID.getText().toString());
+            dbHandler.addNewMessage(sender_id, etName.getText().toString(), etMessage.getText().toString(), tvDatetime.getText().toString(), 0);
             loadData();
-//            messageDataArrayList.add(new MessageData(
-//                    id,
-//                    etName.getText().toString(),
-//                    etMessage.getText().toString(),
-//                    tvDatetime.getText().toString(),
-//                    0));
-//            spNotify.edit().putString("CACHE_DATA", new Gson().toJson(messageDataArrayList)).apply();
-//            loadData();
         });
-
         findViewById(R.id.mClear).setOnClickListener(v -> {
-//            spNotify.edit().clear().apply();
             dbHandler.deleteAllMessage();
             loadData();
         });
-
-        findViewById(R.id.mRefresh).setOnClickListener(v -> {
-//            ArrayList<MessageData> combine = new ArrayList<>();
-//            ArrayList<String> data = new ArrayList<>();
-//            for (Map.Entry<String, ?> entry : spNotify.getAll().entrySet()) data.add(entry.getKey()+"_"+entry.getValue().toString());
-//            for (int i = 0; i < data.size(); i++) {
-//                if (data.get(i).startsWith("CACHE_DATA_")) {
-//                    data.remove(i);
-//                }
-//            }
-//            if (data.size() != 0) {
-//                for (int i = 0; i < data.size(); i++) {
-//                    spNotify.edit().putString(data.get(i).split("_")[0], new Gson().toJson(combine)).apply();
-//                    combine.addAll(new Gson().fromJson(data.get(i).split("_")[1], new TypeToken<ArrayList<MessageData>>() {}.getType()));
-//                }
-//                if (combine.size() != 0) {
-//                    spNotify.edit().clear().apply();
-//                    spNotify.edit().putString("CACHE_DATA", new Gson().toJson(combine)).apply();
-//                }
-//            }
-            loadData();
-        });
-
+        findViewById(R.id.mRefresh).setOnClickListener(v -> loadData());
         findViewById(R.id.mShow).setOnClickListener(v -> {
             ArrayList<Integer> integerArrayList = new ArrayList<>();
             for (int i = 0; i < messageDataArrayList.size(); i++) {
@@ -131,17 +98,6 @@ public class MainActivity extends Activity {
                 loadMessage(integerArrayList.get(i));
             }
             loadData();
-            //
-//            ArrayList<MessageData> combine = new ArrayList<>();
-//            ArrayList<String> data = new ArrayList<>();
-//            for (Map.Entry<String, ?> entry : spNotify.getAll().entrySet()) data.add(entry.getKey()+"_"+entry.getValue().toString());
-//            for (int i = 0; i < data.size(); i++) {
-//                if (!data.get(i).startsWith("CACHE_DATA_")) {
-//                    combine.addAll(new Gson().fromJson(data.get(i).split("_")[1], new TypeToken<ArrayList<MessageData>>() {}.getType()));
-//                }
-//            }
-//            spNotify.edit().putString("CACHE_DATA", new Gson().toJson(combine)).apply();
-            //
         });
     }
 
@@ -149,51 +105,11 @@ public class MainActivity extends Activity {
         messageDataArrayList = new ArrayList<>(dbHandler.messageData());
         rvData.setLayoutManager(new LinearLayoutManager(context));
         rvData.setAdapter(new MessageAdater(messageDataArrayList, context));
-//        // in below line we are getting data from gson
-//        // and saving it to our array list
-//        messageDataArrayList = new Gson().fromJson(spNotify.getString("CACHE_DATA", ""), new TypeToken<ArrayList<MessageData>>() {}.getType());
-////        if (combine.toString().equals("[]")) {
-////
-////        } else {
-////            messageDataArrayList = combine;
-//////            spNotify.edit().remove("CACHE_DATA").apply();
-//////            spNotify.edit().putString("CACHE_DATA", new Gson().toJson(messageDataArrayList)).apply();
-//////            messageDataArrayList = new Gson().fromJson(spNotify.getString("CACHE_DATA", ""), new TypeToken<ArrayList<MessageData>>() {}.getType());
-////        }
-//
-//        // checking below if the array list is empty or not
-//        if (messageDataArrayList == null) messageDataArrayList = new ArrayList<>();
-//
-//        rvData.setLayoutManager(new LinearLayoutManager(context));
-//        rvData.setAdapter(new MessageAdater(messageDataArrayList, context));
     }
 
     private void loadMessage(Integer sender_id) {
         ArrayList<MessageData> cacheMessageDataArrayList = new ArrayList<>(dbHandler.messageDataID(sender_id));
-        Log.d("DATA", new Gson().toJson(cacheMessageDataArrayList));
         if (cacheMessageDataArrayList.size() != 0) notification(this, cacheMessageDataArrayList, sender_id, false);
-//        if (messageData.size() != 0)
-//        for (int i = 0; i < messageDataArrayList.size(); i++) {
-//            if (messageDataArrayList.get(i).getId() == sender_id) {
-//                cacheMessageDataArrayList.add(new MessageData(
-//                        messageDataArrayList.get(i).getId(),
-//                        messageDataArrayList.get(i).getName(),
-//                        messageDataArrayList.get(i).getMessage(),
-//                        messageDataArrayList.get(i).getDatetime(),
-//                        messageDataArrayList.get(i).getRead()));
-////                spNotify.edit().putString("DATA"+sender_id, new Gson().toJson(cacheMessageDataArrayList)).apply();
-//            }
-//        }
-//        ArrayList<MessageData> messageData = new ArrayList<>(cacheMessageDataArrayList);
-//        notification(this, messageData, sender_id, false);
-        //
-//        Type type = new TypeToken<ArrayList<MessageData>>() {}.getType();
-//        ArrayList<MessageData> messageData = new ArrayList<>(new Gson().fromJson(spNotify.getString("DATA"+sender_id, ""), type));
-//        notification(
-//                this,
-//                messageData,
-//                sender_id,
-//                false);
     }
 
     public static void notification(Context context, ArrayList<MessageData> body, Integer sender_id, Boolean isRemove) {
@@ -205,22 +121,15 @@ public class MainActivity extends Activity {
             //--//
         } else {
             // Create an explicit intent for an Activity in your app
-            Intent intent = new Intent(context, MainActivity.class)
-                    .putExtra("senderID", sender_id)
-                    .putExtra("isOPEN", true)
+            Intent intent = new Intent(context, MainActivity.class).putExtra("senderID", sender_id).putExtra("isOPEN", true)
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, sender_id, intent, 0);
             //--//
-            Intent readIntent = new Intent(context, MyBroadcastReceiver.class).setAction("READ_")
-                    .putExtra("senderID", sender_id)
-                    .putExtra("DATA", new Gson().toJson(body));
+            Intent readIntent = new Intent(context, MyBroadcastReceiver.class).setAction("READ_").putExtra("senderID", sender_id);
             PendingIntent readPendingIntent = PendingIntent.getBroadcast(context, sender_id, readIntent, 0);
             //--//
             // Build a PendingIntent for the reply action to trigger.
-            Intent replyIntent = new Intent(context, MyBroadcastReceiver.class).setAction("REPLY_")
-                    .putExtra("senderID", sender_id)
-                    .putExtra("DATA", new Gson().toJson(body));
-            //
+            Intent replyIntent = new Intent(context, MyBroadcastReceiver.class).setAction("REPLY_").putExtra("senderID", sender_id);
             PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context, sender_id, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             // Create the reply action and add the remote input.
             NotificationCompat.Action action = new NotificationCompat.Action.Builder(0, "Reply", replyPendingIntent)

@@ -19,7 +19,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="@dimen/_60sdp"
+                android:layout_width="@dimen/_65sdp"
                 android:layout_height="wrap_content"
                 android:text="ID - READ"
                 android:textSize="@dimen/_13ssp"
@@ -48,7 +48,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="@dimen/_60sdp"
+                android:layout_width="@dimen/_65sdp"
                 android:layout_height="wrap_content"
                 android:text="Name"
                 android:textSize="@dimen/_13ssp"
@@ -77,7 +77,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="@dimen/_60sdp"
+                android:layout_width="@dimen/_65sdp"
                 android:layout_height="wrap_content"
                 android:text="Message"
                 android:textSize="@dimen/_13ssp"
@@ -106,7 +106,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="@dimen/_60sdp"
+                android:layout_width="@dimen/_65sdp"
                 android:layout_height="wrap_content"
                 android:text="Datetime"
                 android:textSize="@dimen/_13ssp"

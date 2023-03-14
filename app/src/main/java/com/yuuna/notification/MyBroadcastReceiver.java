@@ -16,15 +16,17 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class MyBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
         final PendingResult pendingResult = goAsync();
-        Task asyncTask = new Task(pendingResult, intent, context);
-        asyncTask.execute();
+        new Task(pendingResult, intent, context).execute();
     }
 
     private static class Task extends AsyncTask<String, Integer, String> {
@@ -41,45 +43,26 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         protected String doInBackground(String... strings) {
-            //
+            DBHandler dbHandler = new DBHandler(context);
+            Integer sender_id = intent.getIntExtra("senderID", 0);
             if (intent.getAction().startsWith("READ_")) {
-                Integer id = intent.getIntExtra("senderID", 0);
-//                SharedPreferences spData = context.getSharedPreferences("NOTIFY", Context.MODE_PRIVATE);
-//                spData.edit().remove("DATA"+id).apply();
-                Type type = new TypeToken<ArrayList<MessageData>>() {}.getType();
-                ArrayList<MessageData> messageDataArrayList = new ArrayList<>(new Gson().fromJson(intent.getStringExtra("DATA"), type));
-                DBHandler dbHandler = new DBHandler(context);
+                ArrayList<MessageData> messageDataArrayList = new ArrayList<>(dbHandler.messageDataID(sender_id));
                 for (int i = 0; i < messageDataArrayList.size(); i++) {
                     dbHandler.updateRead(messageDataArrayList.get(i).getId());
                 }
-                notification(context, messageDataArrayList, intent.getIntExtra("senderID", 0), true);
-//                ArrayList<MessageData> cacheMessageDataArrayList = new ArrayList<>();
-//                for (int i = 0; i < messageDataArrayList.size(); i++) {
-//                    cacheMessageDataArrayList.add(new MessageData(
-//                            messageDataArrayList.get(i).getId(),
-//                            messageDataArrayList.get(i).getName(),
-//                            messageDataArrayList.get(i).getMessage(),
-//                            messageDataArrayList.get(i).getDatetime(),
-//                            1));
-//                }
-//                spData.edit().putString("DATA"+id, new Gson().toJson(cacheMessageDataArrayList)).apply();
-//                notification(context, cacheMessageDataArrayList, id, true);
+                notification(context, messageDataArrayList, sender_id, true);
+            } else {
+                String time_now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("id")).format(new Date());
+                dbHandler.addNewMessage(sender_id, "Me", String.valueOf(getMessageText(intent)), time_now, 0);
+                ArrayList<MessageData> messageDataArrayList = new ArrayList<>(dbHandler.messageDataID(sender_id));
+                notification(context, messageDataArrayList, sender_id, false);
             }
-            //
-            StringBuilder sb = new StringBuilder();
-            sb.append("Action: " + intent.getAction() + "\n");
-            sb.append("URI: " + intent.toUri(Intent.URI_INTENT_SCHEME).toString() + "\n");
-            String log = sb.toString();
-            Log.d("BroadcastReceiver", log);
-            Log.d("BroadcastReceiver 1", String.valueOf(getMessageText(intent)));
-            return log;
+            return null;
         }
 
         private CharSequence getMessageText(Intent intent) {
             Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
-            if (remoteInput != null) {
-                return remoteInput.getCharSequence("key_text_reply");
-            }
+            if (remoteInput != null) return remoteInput.getCharSequence("key_text_reply");
             return null;
         }
 
