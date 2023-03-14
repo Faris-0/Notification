@@ -56,13 +56,17 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void updateRead(Integer id) {
+    public void updateRead(Integer id, Boolean isMe) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(READ_COL, 1);
 
-        db.update(TABLE_NAME, values, "id=?", new String[]{String.valueOf(id)});
+        if (isMe) {
+            db.update(TABLE_NAME, values, "id=? AND name!='Me'", new String[]{String.valueOf(id)});
+        } else {
+            db.update(TABLE_NAME, values, "id=?", new String[]{String.valueOf(id)});
+        }
         db.close();
     }
 
@@ -72,10 +76,15 @@ public class DBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public ArrayList<MessageData> messageDataID(Integer sender_id)
+    public ArrayList<MessageData> messageDataID(Integer sender_id, Boolean isMe)
     {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursorMessage = db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE sender_id=" + sender_id + " AND read=0", null);
+        Cursor cursorMessage;
+        if (isMe) {
+            cursorMessage = db.rawQuery("SELECT * FROM notification WHERE sender_id=" + sender_id, null);
+        } else {
+            cursorMessage = db.rawQuery("SELECT * FROM notification WHERE name!='Me' AND sender_id=" + sender_id + " AND read=0", null);
+        }
 
         ArrayList<MessageData> messageDataArrayList = new ArrayList<>();
         if (cursorMessage.moveToFirst()) {

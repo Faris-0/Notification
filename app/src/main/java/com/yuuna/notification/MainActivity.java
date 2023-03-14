@@ -6,14 +6,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,35 +23,23 @@ import androidx.core.app.RemoteInput;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
 
 public class MainActivity extends Activity {
 
     private EditText etID, etName, etMessage;
     private TextView tvDatetime;
-    public static RecyclerView rvData;
+    private RecyclerView rvData;
 
-    public static SharedPreferences spNotify;
-    public static Context context;
     public static DBHandler dbHandler;
 
-    public static ArrayList<MessageData> messageDataArrayList;
-
-    private String CHANNEL_ID = "CHANNEL_ID";
+    private ArrayList<MessageData> messageDataArrayList;
     private Boolean doubleBackToExit = false;
-
-    // Key for the string that's delivered in the action's intent.
-    private static final String KEY_TEXT_REPLY = "key_text_reply";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +52,8 @@ public class MainActivity extends Activity {
         tvDatetime = findViewById(R.id.mDate);
         rvData = findViewById(R.id.mData);
 
-        context = this;
         dbHandler = new DBHandler(this);
-        spNotify = getSharedPreferences("NOTIFY", Context.MODE_PRIVATE);
-
         tvDatetime.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("id")).format(new Date()));
-
         loadData();
 
         findViewById(R.id.mSave).setOnClickListener(v -> {
@@ -101,18 +83,18 @@ public class MainActivity extends Activity {
         });
     }
 
-    public static void loadData() {
+    private void loadData() {
         messageDataArrayList = new ArrayList<>(dbHandler.messageData());
-        rvData.setLayoutManager(new LinearLayoutManager(context));
-        rvData.setAdapter(new MessageAdater(messageDataArrayList, context));
+        rvData.setLayoutManager(new LinearLayoutManager(this));
+        rvData.setAdapter(new MessageAdater(messageDataArrayList, this));
     }
 
     private void loadMessage(Integer sender_id) {
-        ArrayList<MessageData> cacheMessageDataArrayList = new ArrayList<>(dbHandler.messageDataID(sender_id));
-        if (cacheMessageDataArrayList.size() != 0) notification(this, cacheMessageDataArrayList, sender_id, false);
+        ArrayList<MessageData> cacheMessageDataArrayList = new ArrayList<>(dbHandler.messageDataID(sender_id, false));
+        if (cacheMessageDataArrayList.size() != 0) notification(this, cacheMessageDataArrayList, sender_id, false, false);
     }
 
-    public static void notification(Context context, ArrayList<MessageData> body, Integer sender_id, Boolean isRemove) {
+    public static void notification(Context context, ArrayList<MessageData> body, Integer sender_id, Boolean isRemove, Boolean isMe) {
         if (isRemove) {
             //--//
             // notificationId is a unique int for each notification that you must define
@@ -146,20 +128,37 @@ public class MainActivity extends Activity {
                 }
             }
             //--//
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, context.getString(R.string.app_name))
-                    .setSmallIcon(android.R.drawable.stat_notify_chat)
-                    .setWhen(date.getTime())
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    // Set the intent that will fire when the user taps the notification
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-                    // Set one alert with same id
-                    .setOnlyAlertOnce(true)
-                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                    .setStyle(messagingStyle)
-                    .setColor(Color.parseColor("#FFBB86FC"))
-                    .addAction(action)
-                    .addAction(0, "Mark as read", readPendingIntent);
+            NotificationCompat.Builder builder;
+            if (isMe) {
+                builder = new NotificationCompat.Builder(context, context.getString(R.string.app_name))
+                        .setSmallIcon(android.R.drawable.stat_notify_chat)
+                        .setWhen(date.getTime())
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        // Set the intent that will fire when the user taps the notification
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        // Set one alert with same id
+                        .setOnlyAlertOnce(true)
+                        .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                        .setStyle(messagingStyle)
+                        .setColor(Color.parseColor("#FFBB86FC"))
+                        .addAction(action);
+            } else {
+                builder = new NotificationCompat.Builder(context, context.getString(R.string.app_name))
+                        .setSmallIcon(android.R.drawable.stat_notify_chat)
+                        .setWhen(date.getTime())
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        // Set the intent that will fire when the user taps the notification
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        // Set one alert with same id
+                        .setOnlyAlertOnce(true)
+                        .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                        .setStyle(messagingStyle)
+                        .setColor(Color.parseColor("#FFBB86FC"))
+                        .addAction(action)
+                        .addAction(0, "Mark as read", readPendingIntent);
+            }
             //--//
             // Create the NotificationChannel, but only on API 26+ because
             // the NotificationChannel class is new and not in the support library
