@@ -41,17 +41,13 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             Integer sender_id = intent.getIntExtra("senderID", 0);
             if (intent.getAction().startsWith("READ_")) {
                 ArrayList<MessageData> messageDataArrayList = new ArrayList<>(dbHandler.messageDataID(sender_id, false));
-                for (int i = 0; i < messageDataArrayList.size(); i++) {
-                    dbHandler.updateRead(messageDataArrayList.get(i).getId(), false);
-                }
+                for (int i = 0; i < messageDataArrayList.size(); i++) dbHandler.updateRead(messageDataArrayList.get(i).getId(), false);
                 notification(context, messageDataArrayList, sender_id, true, false);
             } else {
                 String time_now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("id")).format(new Date());
                 dbHandler.addNewMessage(sender_id, "Me", String.valueOf(getMessageText(intent)), time_now, 0);
                 ArrayList<MessageData> messageDataArrayList = new ArrayList<>(dbHandler.messageDataID(sender_id, true));
-                for (int i = 0; i < messageDataArrayList.size(); i++) {
-                    dbHandler.updateRead(messageDataArrayList.get(i).getId(), true);
-                }
+                for (int i = 0; i < messageDataArrayList.size(); i++) dbHandler.updateRead(messageDataArrayList.get(i).getId(), true);
                 notification(context, messageDataArrayList, sender_id, false, true);
             }
             return null;

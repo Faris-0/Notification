@@ -1,6 +1,5 @@
 package com.yuuna.notification;
 
-import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -73,16 +72,12 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.mRefresh).setOnClickListener(v -> loadData());
         findViewById(R.id.mShow).setOnClickListener(v -> {
             ArrayList<Integer> integerArrayList = new ArrayList<>();
-            for (int i = 0; i < messageDataArrayList.size(); i++) {
-                integerArrayList.add(messageDataArrayList.get(i).getSender_id());
-            }
+            for (int i = 0; i < messageDataArrayList.size(); i++) integerArrayList.add(messageDataArrayList.get(i).getSender_id());
             HashSet hs = new HashSet();
             hs.addAll(integerArrayList);
             integerArrayList.clear();
             integerArrayList.addAll(hs);
-            for (int i = 0; i < integerArrayList.size(); i++) {
-                loadMessage(integerArrayList.get(i));
-            }
+            for (int i = 0; i < integerArrayList.size(); i++) loadMessage(integerArrayList.get(i));
             loadData();
         });
     }
@@ -92,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         SwitchDateTimeDialogFragment dateTimeFragment = (SwitchDateTimeDialogFragment) getSupportFragmentManager().findFragmentByTag("TAG_DATETIME_FRAGMENT");
         if (dateTimeFragment == null) {
             dateTimeFragment = SwitchDateTimeDialogFragment.newInstance(
-                    getString(R.string.datetime),
+                    "DATE & TIME",
                     getString(android.R.string.ok),
                     getString(android.R.string.cancel),
                     null,// Optional
@@ -107,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         final SimpleDateFormat myDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("id"));
         // Assign unmodifiable values
         dateTimeFragment.set24HoursMode(true);
-        dateTimeFragment.setHighlightAMPMSelection(false);
+        // dateTimeFragment.setHighlightAMPMSelection(false);
         // dateTimeFragment.setMinimumDateTime(new GregorianCalendar(2015, Calendar.JANUARY, 1).getTime());
         // dateTimeFragment.setMaximumDateTime(new GregorianCalendar(2025, Calendar.DECEMBER, 31).getTime());
 
@@ -188,37 +183,20 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             //--//
-            NotificationCompat.Builder builder;
-            if (isMe) {
-                builder = new NotificationCompat.Builder(context, context.getString(R.string.app_name))
-                        .setSmallIcon(android.R.drawable.stat_notify_chat)
-                        .setWhen(date.getTime())
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                        // Set the intent that will fire when the user taps the notification
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        // Set one alert with same id
-                        .setOnlyAlertOnce(true)
-                        .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                        .setStyle(messagingStyle)
-                        .setColor(Color.parseColor("#FFBB86FC"))
-                        .addAction(action);
-            } else {
-                builder = new NotificationCompat.Builder(context, context.getString(R.string.app_name))
-                        .setSmallIcon(android.R.drawable.stat_notify_chat)
-                        .setWhen(date.getTime())
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                        // Set the intent that will fire when the user taps the notification
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        // Set one alert with same id
-                        .setOnlyAlertOnce(true)
-                        .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                        .setStyle(messagingStyle)
-                        .setColor(Color.parseColor("#FFBB86FC"))
-                        .addAction(action)
-                        .addAction(0, "Mark as read", readPendingIntent);
-            }
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, context.getString(R.string.app_name))
+                    .setSmallIcon(android.R.drawable.stat_notify_chat)
+                    .setWhen(date.getTime())
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    // Set the intent that will fire when the user taps the notification
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    // Set one alert with same id
+                    .setOnlyAlertOnce(true)
+                    .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                    .setStyle(messagingStyle)
+                    .setColor(Color.parseColor("#FFBB86FC"))
+                    .addAction(action);
+            if (!isMe) builder.addAction(0, "Mark as read", readPendingIntent);
             //--//
             // Create the NotificationChannel, but only on API 26+ because
             // the NotificationChannel class is new and not in the support library
@@ -239,9 +217,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (doubleBackToExit) {
-            finishAndRemoveTask();
-        }
+        if (doubleBackToExit) finishAndRemoveTask();
 
         doubleBackToExit = true;
         Toast.makeText(this, "Tekan sekali lagi untuk keluar dari aplikasi", Toast.LENGTH_SHORT).show();

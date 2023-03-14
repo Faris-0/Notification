@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -62,11 +61,8 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(READ_COL, 1);
 
-        if (isMe) {
-            db.update(TABLE_NAME, values, "id=? AND name!='Me'", new String[]{String.valueOf(id)});
-        } else {
-            db.update(TABLE_NAME, values, "id=?", new String[]{String.valueOf(id)});
-        }
+        if (isMe) db.update(TABLE_NAME, values, "id=? AND name!='Me'", new String[]{String.valueOf(id)});
+        else db.update(TABLE_NAME, values, "id=?", new String[]{String.valueOf(id)});
         db.close();
     }
 
@@ -80,11 +76,8 @@ public class DBHandler extends SQLiteOpenHelper {
     {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursorMessage;
-        if (isMe) {
-            cursorMessage = db.rawQuery("SELECT * FROM notification WHERE sender_id=" + sender_id, null);
-        } else {
-            cursorMessage = db.rawQuery("SELECT * FROM notification WHERE name!='Me' AND sender_id=" + sender_id + " AND read=0", null);
-        }
+        if (isMe) cursorMessage = db.rawQuery("SELECT * FROM notification WHERE sender_id=" + sender_id, null);
+        else cursorMessage = db.rawQuery("SELECT * FROM notification WHERE name!='Me' AND sender_id=" + sender_id + " AND read=0", null);
 
         ArrayList<MessageData> messageDataArrayList = new ArrayList<>();
         if (cursorMessage.moveToFirst()) {
