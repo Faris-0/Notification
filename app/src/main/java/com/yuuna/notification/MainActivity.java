@@ -16,12 +16,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.RemoteInput;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,13 +33,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private EditText etID, etName, etMessage;
     private TextView tvDatetime;
     private RecyclerView rvData;
 
-    public static DBHandler dbHandler;
+    private DBHandler dbHandler;
 
     private ArrayList<MessageData> messageDataArrayList;
     private Boolean doubleBackToExit = false;
@@ -55,7 +58,8 @@ public class MainActivity extends Activity {
         dbHandler = new DBHandler(this);
         tvDatetime.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("id")).format(new Date()));
         loadData();
-
+        
+        findViewById(R.id.mDate).setOnClickListener(v -> loadDatePicker());
         findViewById(R.id.mSave).setOnClickListener(v -> {
             Integer sender_id = 0;
             if (!etID.getText().toString().equals("")) sender_id = Integer.valueOf(etID.getText().toString());
@@ -81,6 +85,62 @@ public class MainActivity extends Activity {
             }
             loadData();
         });
+    }
+
+    private void loadDatePicker() {
+        // Construct SwitchDateTimePicker
+        SwitchDateTimeDialogFragment dateTimeFragment = (SwitchDateTimeDialogFragment) getSupportFragmentManager().findFragmentByTag("TAG_DATETIME_FRAGMENT");
+        if (dateTimeFragment == null) {
+            dateTimeFragment = SwitchDateTimeDialogFragment.newInstance(
+                    getString(R.string.datetime),
+                    getString(android.R.string.ok),
+                    getString(android.R.string.cancel),
+                    null,// Optional
+                    "id"
+            );
+        }
+
+        // Optionally define a timezone
+        // dateTimeFragment.setTimeZone(TimeZone.getDefault());
+
+        // Init format
+        final SimpleDateFormat myDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new Locale("id"));
+        // Assign unmodifiable values
+        dateTimeFragment.set24HoursMode(true);
+        dateTimeFragment.setHighlightAMPMSelection(false);
+        // dateTimeFragment.setMinimumDateTime(new GregorianCalendar(2015, Calendar.JANUARY, 1).getTime());
+        // dateTimeFragment.setMaximumDateTime(new GregorianCalendar(2025, Calendar.DECEMBER, 31).getTime());
+
+        // Define new day and month format
+        try {
+            dateTimeFragment.setSimpleDateMonthAndDayFormat(new SimpleDateFormat("MMMM dd", new Locale("id")));
+        } catch (SwitchDateTimeDialogFragment.SimpleDateMonthAndDayFormatException e) {
+            e.printStackTrace();
+        }
+
+        // Set listener for date
+        // Or use dateTimeFragment.setOnButtonClickListener(new SwitchDateTimeDialogFragment.OnButtonClickListener() {
+        dateTimeFragment.setOnButtonClickListener(new SwitchDateTimeDialogFragment.OnButtonWithNeutralClickListener() {
+            @Override
+            public void onNeutralButtonClick(Date date) {
+
+            }
+
+            @Override
+            public void onPositiveButtonClick(Date date) {
+                tvDatetime.setText(myDateFormat.format(date));
+            }
+
+            @Override
+            public void onNegativeButtonClick(Date date) {
+
+            }
+        });
+
+        if (!dateTimeFragment.isAdded()) {
+            dateTimeFragment.startAtCalendarView();
+            dateTimeFragment.show(getSupportFragmentManager(), "TAG_DATETIME_FRAGMENT");
+        }
     }
 
     private void loadData() {

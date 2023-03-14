@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme">
+    <style name="Theme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="android:colorPrimary">@color/purple_500</item>
-        <item name="android:colorPrimaryDark">@color/purple_700</item>
+        <item name="android:colorPrimary">@color/purple</item>
+        <item name="android:colorPrimaryDark">@color/purple_200</item>
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="Theme.SwitchDateTime.HeaderBackground">
+        <item name="android:background">?attr/colorPrimaryDark</item>
+    </style>
+
+    <!-- Content Background -->
+    <style name="Theme.SwitchDateTime.ContentBackground">
+        <item name="android:background">?attr/colorPrimary</item>
     </style>
 </resources>
