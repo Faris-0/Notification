@@ -1,5 +1,7 @@
 package com.yuuna.notification;
 
+import static android.Manifest.permission.POST_NOTIFICATIONS;
+
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -20,6 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.RemoteInput;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(this, POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{POST_NOTIFICATIONS}, 1);
+        }
 
         etID = findViewById(R.id.mID);
         etName = findViewById(R.id.mName);
@@ -153,21 +160,21 @@ public class MainActivity extends AppCompatActivity {
         if (isRemove) {
             //--//
             // notificationId is a unique int for each notification that you must define
-            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return;
+            if (ActivityCompat.checkSelfPermission(context, POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return;
             NotificationManagerCompat.from(context).cancel(sender_id);
             //--//
         } else {
             // Create an explicit intent for an Activity in your app
             Intent intent = new Intent(context, MainActivity.class).putExtra("senderID", sender_id).putExtra("isOPEN", true)
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, sender_id, intent, 0);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, sender_id, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
             //--//
             Intent readIntent = new Intent(context, MyBroadcastReceiver.class).setAction("READ_").putExtra("senderID", sender_id);
-            PendingIntent readPendingIntent = PendingIntent.getBroadcast(context, sender_id, readIntent, 0);
+            PendingIntent readPendingIntent = PendingIntent.getBroadcast(context, sender_id, readIntent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
             //--//
             // Build a PendingIntent for the reply action to trigger.
             Intent replyIntent = new Intent(context, MyBroadcastReceiver.class).setAction("REPLY_").putExtra("senderID", sender_id);
-            PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context, sender_id, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context, sender_id, replyIntent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
             // Create the reply action and add the remote input.
             NotificationCompat.Action action = new NotificationCompat.Action.Builder(0, "Reply", replyPendingIntent)
                     .addRemoteInput(new RemoteInput.Builder("key_text_reply").setLabel("Reply").build()).build();
@@ -209,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             }
             //--//
             // notificationId is a unique int for each notification that you must define
-            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return;
+            if (ActivityCompat.checkSelfPermission(context, POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return;
             NotificationManagerCompat.from(context).notify(sender_id, builder.build());
             //--//
         }
