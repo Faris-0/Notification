@@ -1,2 +1,2 @@
 # Notification
-Android - Sample Notification using SQLite
+Android - Simple Notification using SQLite
