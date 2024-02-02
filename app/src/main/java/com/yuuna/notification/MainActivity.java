@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             }
             //--//
             // notificationId is a unique int for each notification that you must define
-            if (ActivityCompat.checkSelfPermission(context, POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return;
+            if (Build.VERSION.SDK_INT >= 33 && ActivityCompat.checkSelfPermission(context, POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return;
             NotificationManagerCompat.from(context).notify(sender_id, builder.build());
             //--//
         }
